@@ -34,12 +34,12 @@ class TennisGame1 implements TennisGame
 
     private function isPlayoff(): bool
     {
-        return ($this->player1Score >= 4 || $this->player2Score >= 4) && abs($this->player1Score - $this->player2Score) === 1;
+        return ($this->player1Score >= \count(self::POINT_STATUS) || $this->player2Score >= \count(self::POINT_STATUS)) && abs($this->player1Score - $this->player2Score) === 1;
     }
 
     private function isOver(): bool
     {
-        return ($this->player1Score >= 4 || $this->player2Score >= 4) && abs($this->player1Score - $this->player2Score) >= 2;
+        return ($this->player1Score >= \count(self::POINT_STATUS) || $this->player2Score >= \count(self::POINT_STATUS)) && abs($this->player1Score - $this->player2Score) >= 2;
     }
 
     private function whoIsWinning(): ?string
