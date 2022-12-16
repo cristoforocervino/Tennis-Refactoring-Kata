@@ -24,10 +24,38 @@ class TennisGame1 implements TennisGame
         }
     }
 
+    private function isEven(): bool
+    {
+        return $this->player1Score === $this->player2Score;
+    }
+
+    private function isPlayoff(): bool
+    {
+        return ($this->player1Score >= 4 || $this->player2Score >= 4) && abs($this->player1Score - $this->player2Score) === 1;
+    }
+
+    private function isOver(): bool
+    {
+        return ($this->player1Score >= 4 || $this->player2Score >= 4) && abs($this->player1Score - $this->player2Score) >= 2;
+    }
+
+    private function whoIsWinning()
+    {
+        if ($this->player1Score > $this->player2Score) {
+            return $this->player1Name;
+        }
+
+        if ($this->player2Score > $this->player1Score) {
+            return $this->player2Name;
+        }
+
+        return null;
+    }
+
     public function getScore()
     {
         $score = "";
-        if ($this->player1Score == $this->player2Score) {
+        if ($this->isEven()) {
             switch ($this->player1Score) {
                 case 0:
                     $score = "Love-All";
@@ -42,17 +70,10 @@ class TennisGame1 implements TennisGame
                     $score = "Deuce";
                     break;
             }
-        } elseif ($this->player1Score >= 4 || $this->player2Score >= 4) {
-            $minusResult = $this->player1Score - $this->player2Score;
-            if ($minusResult == 1) {
-                $score = "Advantage player1";
-            } elseif ($minusResult == -1) {
-                $score = "Advantage player2";
-            } elseif ($minusResult >= 2) {
-                $score = "Win for player1";
-            } else {
-                $score = "Win for player2";
-            }
+        } elseif ($this->isPlayoff()) {
+            $score = \sprintf('Advantage %s', $this->whoIsWinning());
+        } elseif ($this->isOver()) {
+            $score = \sprintf('Win for %s', $this->whoIsWinning());
         } else {
             for ($i = 1; $i < 3; $i++) {
                 if ($i == 1) {
