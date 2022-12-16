@@ -4,18 +4,21 @@ namespace TennisGame;
 
 class TennisGame1 implements TennisGame
 {
-    private $player1Score = 0;
-    private $player2Score = 0;
-    private $player1Name = '';
-    private $player2Name = '';
+    private int $player1Score = 0;
+    private int $player2Score = 0;
 
-    public function __construct($player1Name, $player2Name)
+    protected const POINT_STATUS = [
+        0 => 'Love',
+        1 => 'Fifteen',
+        2 => 'Thirty',
+        3 => 'Forty'
+    ];
+
+    public function __construct(private readonly string $player1Name, private readonly string $player2Name)
     {
-        $this->player1Name = $player1Name;
-        $this->player2Name = $player2Name;
     }
 
-    public function wonPoint($playerName)
+    public function wonPoint($playerName): void
     {
         if ($this->player1Name === $playerName) {
             $this->player1Score++;
@@ -39,7 +42,7 @@ class TennisGame1 implements TennisGame
         return ($this->player1Score >= 4 || $this->player2Score >= 4) && abs($this->player1Score - $this->player2Score) >= 2;
     }
 
-    private function whoIsWinning()
+    private function whoIsWinning(): ?string
     {
         if ($this->player1Score > $this->player2Score) {
             return $this->player1Name;
@@ -52,52 +55,21 @@ class TennisGame1 implements TennisGame
         return null;
     }
 
-    public function getScore()
+    public function getScore(): string
     {
-        $score = "";
         if ($this->isEven()) {
-            switch ($this->player1Score) {
-                case 0:
-                    $score = "Love-All";
-                    break;
-                case 1:
-                    $score = "Fifteen-All";
-                    break;
-                case 2:
-                    $score = "Thirty-All";
-                    break;
-                default:
-                    $score = "Deuce";
-                    break;
-            }
+            $evenStatuses = self::POINT_STATUS;
+            \array_pop($evenStatuses);
+            return isset($evenStatuses[$this->player1Score]) ? \sprintf('%s-All',$evenStatuses[$this->player1Score]) : 'Deuce';
         } elseif ($this->isPlayoff()) {
-            $score = \sprintf('Advantage %s', $this->whoIsWinning());
+            return \sprintf('Advantage %s', $this->whoIsWinning());
         } elseif ($this->isOver()) {
-            $score = \sprintf('Win for %s', $this->whoIsWinning());
-        } else {
-            for ($i = 1; $i < 3; $i++) {
-                if ($i == 1) {
-                    $tempScore = $this->player1Score;
-                } else {
-                    $score .= "-";
-                    $tempScore = $this->player2Score;
-                }
-                switch ($tempScore) {
-                    case 0:
-                        $score .= "Love";
-                        break;
-                    case 1:
-                        $score .= "Fifteen";
-                        break;
-                    case 2:
-                        $score .= "Thirty";
-                        break;
-                    case 3:
-                        $score .= "Forty";
-                        break;
-                }
-            }
+            return \sprintf('Win for %s', $this->whoIsWinning());
         }
-        return $score;
+        return \sprintf(
+            '%s-%s',
+            self::POINT_STATUS[$this->player1Score] ?? throw new \LogicException('???'),
+            self::POINT_STATUS[$this->player2Score] ?? throw new \LogicException('???'),
+        );
     }
 }
